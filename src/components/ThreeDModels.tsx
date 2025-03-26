@@ -73,20 +73,21 @@ const AICodeVisualization = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-          {/* Image/GIF Display instead of 3D Model */}
+          {/* Code visualization placeholder - removed image */}
           <div 
             className={`transition-all duration-1000 ${
               isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-20'
             }`}
           >
-            <div className="glass-card p-4 rounded-xl">
-              <img 
-                src="https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7" 
-                alt="AI Code Generation Visualization"
-                className="w-full h-auto rounded-lg shadow-lg"
-              />
-              <div className="text-center mt-4 text-sm text-codegenius-black/70">
-                CodeGenius AI transforming natural language into elegant code solutions
+            <div className="glass-card p-6 rounded-xl h-full flex items-center justify-center">
+              <div className="text-center p-8">
+                <div className="w-20 h-20 mx-auto mb-4 bg-codegenius-purple/20 rounded-full flex items-center justify-center">
+                  <Code size={40} className="text-codegenius-purple" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">AI-Powered Code Generation</h3>
+                <p className="text-codegenius-black/70">
+                  Our advanced algorithms transform your ideas into clean, efficient code
+                </p>
               </div>
             </div>
           </div>
