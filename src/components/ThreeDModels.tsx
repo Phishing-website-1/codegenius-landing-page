@@ -3,10 +3,11 @@ import React, { useRef, Suspense, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, useGLTF, Environment, Text3D, Center } from '@react-three/drei';
 import { Sparkles, Code, Database, Braces } from 'lucide-react';
+import { Group } from 'three';
 
 // Rotating code blocks component
 const CodeBlocks = (props) => {
-  const group = useRef();
+  const group = useRef<Group>(null);
   
   useFrame((state) => {
     if (group.current) {
