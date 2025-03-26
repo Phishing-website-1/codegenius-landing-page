@@ -1,48 +1,120 @@
 
 import React, { useRef, Suspense, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera, useGLTF, Environment, Text3D, Center } from '@react-three/drei';
+import { OrbitControls, PerspectiveCamera, Environment, Text3D, Center, Float } from '@react-three/drei';
 import { Sparkles, Code, Database, Braces } from 'lucide-react';
-import { Group } from 'three';
+import { Group, MathUtils, Vector3 } from 'three';
 
-// Rotating code blocks component
-const CodeBlocks = (props) => {
-  const group = useRef<Group>(null);
+// Code Particle System component
+const CodeParticles = () => {
+  const particlesRef = useRef<Group>(null);
+  const particleCount = 50;
+  const particles = Array.from({ length: particleCount });
+  
+  // Programming language names for particles
+  const languages = [
+    "JavaScript", "Python", "Java", "TypeScript", 
+    "C++", "Go", "Rust", "PHP", "Ruby", "Swift"
+  ];
   
   useFrame((state) => {
-    if (group.current) {
-      group.current.rotation.y = state.clock.getElapsedTime() * 0.1;
+    if (particlesRef.current) {
+      particlesRef.current.rotation.y = state.clock.getElapsedTime() * 0.05;
+      
+      // Animate each particle child
+      particlesRef.current.children.forEach((particle, i) => {
+        // Pulsating animation
+        const t = state.clock.getElapsedTime() + i;
+        particle.scale.x = particle.scale.y = 0.8 + Math.sin(t * 2) * 0.1;
+        
+        // Random subtle movement
+        particle.position.y += Math.sin(t + i) * 0.002;
+        
+        // Reset if it goes too far
+        if (particle.position.y > 3) particle.position.y = -3;
+      });
     }
   });
 
   return (
-    <group ref={group} {...props}>
-      {/* Code blocks arranged in a circle */}
-      {[0, 1, 2, 3, 4, 5].map((i) => (
-        <mesh 
-          key={i} 
-          position={[
-            Math.sin(i / 6 * Math.PI * 2) * 2.5,
-            Math.random() * 0.5 - 0.25,
-            Math.cos(i / 6 * Math.PI * 2) * 2.5
-          ]}
-          rotation={[0, i / 6 * Math.PI * 2, 0]}
-          scale={[0.8, 1, 0.05]}
-        >
-          <boxGeometry />
-          <meshStandardMaterial 
-            color={i % 2 === 0 ? "#8B5CF6" : "#ffffff"} 
-            metalness={0.8} 
-            roughness={0.2} 
-          />
-        </mesh>
-      ))}
-      
-      {/* Central CodeGenius text */}
+    <group ref={particlesRef}>
+      {particles.map((_, i) => {
+        // Generate a random position in a spherical formation
+        const angle = (i / particleCount) * Math.PI * 2;
+        const radius = 3 + Math.random() * 2; // Random radius between 3-5
+        const y = (Math.random() - 0.5) * 5; // Random y position
+        
+        return (
+          <mesh 
+            key={i} 
+            position={[
+              Math.sin(angle) * radius,
+              y,
+              Math.cos(angle) * radius
+            ]}
+            rotation={[0, Math.random() * Math.PI * 2, 0]}
+          >
+            <Text3D
+              font="/fonts/Inter_Bold.json"
+              size={0.15}
+              height={0.02}
+              curveSegments={4}
+            >
+              {languages[i % languages.length]}
+              <meshStandardMaterial 
+                color={i % 3 === 0 ? "#8B5CF6" : (i % 3 === 1 ? "#ffffff" : "#10b981")}
+                emissive={i % 3 === 0 ? "#8B5CF6" : (i % 3 === 1 ? "#ffffff" : "#10b981")}
+                emissiveIntensity={0.5}
+                metalness={0.8}
+                roughness={0.2}
+              />
+            </Text3D>
+          </mesh>
+        );
+      })}
+    </group>
+  );
+};
+
+// Code Generation Beam component
+const CodeBeam = () => {
+  const beamRef = useRef<Group>(null);
+  
+  useFrame(({ clock }) => {
+    if (beamRef.current) {
+      const t = clock.getElapsedTime();
+      // Pulse effect
+      beamRef.current.scale.x = 1 + Math.sin(t * 3) * 0.2;
+      beamRef.current.scale.z = 1 + Math.sin(t * 3) * 0.2;
+      // Rotation
+      beamRef.current.rotation.y = t * 0.5;
+    }
+  });
+  
+  return (
+    <group ref={beamRef}>
+      <mesh position={[0, 0, 0]}>
+        <cylinderGeometry args={[0.1, 0.1, 6, 32]} />
+        <meshStandardMaterial 
+          color="#8B5CF6" 
+          emissive="#8B5CF6"
+          emissiveIntensity={2}
+          opacity={0.7}
+          transparent={true}
+        />
+      </mesh>
+    </group>
+  );
+};
+
+// Central CodeGenius Logo
+const CodeGeniusLogo = () => {
+  return (
+    <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
       <Center position={[0, 0, 0]}>
         <Text3D
           font="/fonts/Inter_Bold.json"
-          size={0.5}
+          size={0.7}
           height={0.1}
           curveSegments={12}
           bevelEnabled
@@ -56,10 +128,73 @@ const CodeBlocks = (props) => {
             color="#8B5CF6" 
             metalness={0.8}
             roughness={0.2}
+            emissive="#8B5CF6"
+            emissiveIntensity={0.5}
           />
         </Text3D>
       </Center>
+    </Float>
+  );
+};
+
+// Binary code particles
+const BinaryParticles = () => {
+  const particlesRef = useRef<Group>(null);
+  const particleCount = 30;
+  
+  useFrame(({ clock }) => {
+    if (particlesRef.current) {
+      particlesRef.current.children.forEach((particle, i) => {
+        // Move particles downward
+        particle.position.y -= 0.02;
+        
+        // Reset position when reaching bottom
+        if (particle.position.y < -5) {
+          particle.position.y = 5;
+          particle.position.x = (Math.random() - 0.5) * 10;
+          particle.position.z = (Math.random() - 0.5) * 10;
+        }
+      });
+    }
+  });
+  
+  return (
+    <group ref={particlesRef}>
+      {Array.from({ length: particleCount }).map((_, i) => (
+        <Text3D
+          key={i}
+          font="/fonts/Inter_Bold.json"
+          position={[
+            (Math.random() - 0.5) * 10,
+            (Math.random() - 0.5) * 10,
+            (Math.random() - 0.5) * 10
+          ]}
+          size={0.2}
+          height={0.01}
+        >
+          {Math.random() > 0.5 ? "1" : "0"}
+          <meshStandardMaterial 
+            color="#ffffff" 
+            emissive="#ffffff"
+            emissiveIntensity={0.5}
+            opacity={0.7}
+            transparent={true}
+          />
+        </Text3D>
+      ))}
     </group>
+  );
+};
+
+// Main 3D scene
+const CodeAnimation = () => {
+  return (
+    <>
+      <BinaryParticles />
+      <CodeParticles />
+      <CodeBeam />
+      <CodeGeniusLogo />
+    </>
   );
 };
 
@@ -142,7 +277,7 @@ const ThreeDModels = () => {
             }`}
           >
             <Canvas shadows dpr={[1, 2]}>
-              <PerspectiveCamera makeDefault position={[0, 0, 6]} fov={50} />
+              <PerspectiveCamera makeDefault position={[0, 0, 10]} fov={50} />
               <ambientLight intensity={0.5} />
               <spotLight 
                 position={[10, 10, 10]} 
@@ -154,14 +289,15 @@ const ThreeDModels = () => {
               <pointLight position={[-10, -10, -10]} intensity={1} />
               
               <Suspense fallback={null}>
-                <CodeBlocks position={[0, 0, 0]} />
+                <CodeAnimation />
                 <Environment preset="city" />
               </Suspense>
               
               <OrbitControls 
                 enableZoom={false} 
                 enablePan={false} 
-                autoRotate={false}
+                autoRotate={true}
+                autoRotateSpeed={0.5}
                 minPolarAngle={Math.PI / 3}
                 maxPolarAngle={Math.PI / 1.5}
               />
