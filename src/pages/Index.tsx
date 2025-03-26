@@ -5,7 +5,7 @@ import Hero from '../components/Hero';
 import Features from '../components/Features';
 import HowItWorks from '../components/HowItWorks';
 import CTA from '../components/CTA';
-import ThreeDModels from '../components/ThreeDModels';
+import AICodeVisualization from '../components/ThreeDModels';
 
 const Index = () => {
   useEffect(() => {
@@ -18,7 +18,7 @@ const Index = () => {
       <Hero />
       <Features />
       <HowItWorks />
-      <ThreeDModels />
+      <AICodeVisualization />
       <CTA />
     </div>
   );

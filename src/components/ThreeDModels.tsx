@@ -1,205 +1,8 @@
-
-import React, { useRef, Suspense, useState, useEffect } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera, Environment, Text3D, Center, Float } from '@react-three/drei';
+import React, { useRef, useState, useEffect } from 'react';
 import { Sparkles, Code, Database, Braces } from 'lucide-react';
-import { Group, MathUtils, Vector3 } from 'three';
 
-// Code Particle System component
-const CodeParticles = () => {
-  const particlesRef = useRef<Group>(null);
-  const particleCount = 50;
-  const particles = Array.from({ length: particleCount });
-  
-  // Programming language names for particles
-  const languages = [
-    "JavaScript", "Python", "Java", "TypeScript", 
-    "C++", "Go", "Rust", "PHP", "Ruby", "Swift"
-  ];
-  
-  useFrame((state) => {
-    if (particlesRef.current) {
-      particlesRef.current.rotation.y = state.clock.getElapsedTime() * 0.05;
-      
-      // Animate each particle child
-      particlesRef.current.children.forEach((particle, i) => {
-        // Pulsating animation
-        const t = state.clock.getElapsedTime() + i;
-        particle.scale.x = particle.scale.y = 0.8 + Math.sin(t * 2) * 0.1;
-        
-        // Random subtle movement
-        particle.position.y += Math.sin(t + i) * 0.002;
-        
-        // Reset if it goes too far
-        if (particle.position.y > 3) particle.position.y = -3;
-      });
-    }
-  });
-
-  return (
-    <group ref={particlesRef}>
-      {particles.map((_, i) => {
-        // Generate a random position in a spherical formation
-        const angle = (i / particleCount) * Math.PI * 2;
-        const radius = 3 + Math.random() * 2; // Random radius between 3-5
-        const y = (Math.random() - 0.5) * 5; // Random y position
-        
-        return (
-          <mesh 
-            key={i} 
-            position={[
-              Math.sin(angle) * radius,
-              y,
-              Math.cos(angle) * radius
-            ]}
-            rotation={[0, Math.random() * Math.PI * 2, 0]}
-          >
-            <Text3D
-              font="/fonts/Inter_Bold.json"
-              size={0.15}
-              height={0.02}
-              curveSegments={4}
-            >
-              {languages[i % languages.length]}
-              <meshStandardMaterial 
-                color={i % 3 === 0 ? "#8B5CF6" : (i % 3 === 1 ? "#ffffff" : "#10b981")}
-                emissive={i % 3 === 0 ? "#8B5CF6" : (i % 3 === 1 ? "#ffffff" : "#10b981")}
-                emissiveIntensity={0.5}
-                metalness={0.8}
-                roughness={0.2}
-              />
-            </Text3D>
-          </mesh>
-        );
-      })}
-    </group>
-  );
-};
-
-// Code Generation Beam component
-const CodeBeam = () => {
-  const beamRef = useRef<Group>(null);
-  
-  useFrame(({ clock }) => {
-    if (beamRef.current) {
-      const t = clock.getElapsedTime();
-      // Pulse effect
-      beamRef.current.scale.x = 1 + Math.sin(t * 3) * 0.2;
-      beamRef.current.scale.z = 1 + Math.sin(t * 3) * 0.2;
-      // Rotation
-      beamRef.current.rotation.y = t * 0.5;
-    }
-  });
-  
-  return (
-    <group ref={beamRef}>
-      <mesh position={[0, 0, 0]}>
-        <cylinderGeometry args={[0.1, 0.1, 6, 32]} />
-        <meshStandardMaterial 
-          color="#8B5CF6" 
-          emissive="#8B5CF6"
-          emissiveIntensity={2}
-          opacity={0.7}
-          transparent={true}
-        />
-      </mesh>
-    </group>
-  );
-};
-
-// Central CodeGenius Logo
-const CodeGeniusLogo = () => {
-  return (
-    <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
-      <Center position={[0, 0, 0]}>
-        <Text3D
-          font="/fonts/Inter_Bold.json"
-          size={0.7}
-          height={0.1}
-          curveSegments={12}
-          bevelEnabled
-          bevelThickness={0.02}
-          bevelSize={0.02}
-          bevelOffset={0}
-          bevelSegments={5}
-        >
-          {`< CodeGenius />`}
-          <meshStandardMaterial 
-            color="#8B5CF6" 
-            metalness={0.8}
-            roughness={0.2}
-            emissive="#8B5CF6"
-            emissiveIntensity={0.5}
-          />
-        </Text3D>
-      </Center>
-    </Float>
-  );
-};
-
-// Binary code particles
-const BinaryParticles = () => {
-  const particlesRef = useRef<Group>(null);
-  const particleCount = 30;
-  
-  useFrame(({ clock }) => {
-    if (particlesRef.current) {
-      particlesRef.current.children.forEach((particle, i) => {
-        // Move particles downward
-        particle.position.y -= 0.02;
-        
-        // Reset position when reaching bottom
-        if (particle.position.y < -5) {
-          particle.position.y = 5;
-          particle.position.x = (Math.random() - 0.5) * 10;
-          particle.position.z = (Math.random() - 0.5) * 10;
-        }
-      });
-    }
-  });
-  
-  return (
-    <group ref={particlesRef}>
-      {Array.from({ length: particleCount }).map((_, i) => (
-        <Text3D
-          key={i}
-          font="/fonts/Inter_Bold.json"
-          position={[
-            (Math.random() - 0.5) * 10,
-            (Math.random() - 0.5) * 10,
-            (Math.random() - 0.5) * 10
-          ]}
-          size={0.2}
-          height={0.01}
-        >
-          {Math.random() > 0.5 ? "1" : "0"}
-          <meshStandardMaterial 
-            color="#ffffff" 
-            emissive="#ffffff"
-            emissiveIntensity={0.5}
-            opacity={0.7}
-            transparent={true}
-          />
-        </Text3D>
-      ))}
-    </group>
-  );
-};
-
-// Main 3D scene
-const CodeAnimation = () => {
-  return (
-    <>
-      <BinaryParticles />
-      <CodeParticles />
-      <CodeBeam />
-      <CodeGeniusLogo />
-    </>
-  );
-};
-
-// Main 3D Models component
-const ThreeDModels = () => {
+// Main component - renamed but keeping the same file for now
+const AICodeVisualization = () => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef(null);
 
@@ -230,7 +33,7 @@ const ThreeDModels = () => {
   return (
     <section 
       ref={sectionRef}
-      id="3d-models" 
+      id="ai-visualization" 
       className="py-20 relative overflow-hidden"
     >
       {/* Background decoration */}
@@ -270,38 +73,22 @@ const ThreeDModels = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-          {/* 3D Model Display */}
+          {/* Image/GIF Display instead of 3D Model */}
           <div 
-            className={`h-[500px] glass-card transition-all duration-1000 ${
+            className={`transition-all duration-1000 ${
               isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-20'
             }`}
           >
-            <Canvas shadows dpr={[1, 2]}>
-              <PerspectiveCamera makeDefault position={[0, 0, 10]} fov={50} />
-              <ambientLight intensity={0.5} />
-              <spotLight 
-                position={[10, 10, 10]} 
-                angle={0.15} 
-                penumbra={1} 
-                intensity={1} 
-                castShadow 
+            <div className="glass-card p-4 rounded-xl">
+              <img 
+                src="https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7" 
+                alt="AI Code Generation Visualization"
+                className="w-full h-auto rounded-lg shadow-lg"
               />
-              <pointLight position={[-10, -10, -10]} intensity={1} />
-              
-              <Suspense fallback={null}>
-                <CodeAnimation />
-                <Environment preset="city" />
-              </Suspense>
-              
-              <OrbitControls 
-                enableZoom={false} 
-                enablePan={false} 
-                autoRotate={true}
-                autoRotateSpeed={0.5}
-                minPolarAngle={Math.PI / 3}
-                maxPolarAngle={Math.PI / 1.5}
-              />
-            </Canvas>
+              <div className="text-center mt-4 text-sm text-codegenius-black/70">
+                CodeGenius AI transforming natural language into elegant code solutions
+              </div>
+            </div>
           </div>
           
           {/* Features explanation */}
@@ -366,4 +153,4 @@ const ThreeDModels = () => {
   );
 };
 
-export default ThreeDModels;
+export default AICodeVisualization;
